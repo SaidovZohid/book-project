@@ -153,7 +153,7 @@ func (d *DBManager) GetAllBook() ([]*Book, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer rows.Close()
 	var books []*Book
 	for rows.Next() {
 		var book Book
