@@ -149,5 +149,26 @@ func (d *DBManager) GetAllBook() ([]*Book, error) {
 			created_at
 		FROM book_info
 	`
-	rows, err := d.db.Query(query, )
+	rows, err := d.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var books []*Book
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(
+			&book.Id,
+			&book.Title,
+			&book.AuthorName,
+			&book.Price,
+			&book.Amount,
+			&book.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, &book)
+	}
+	return books, nil
 }

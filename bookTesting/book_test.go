@@ -45,3 +45,13 @@ func TestUpdateBook(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, book_update)
 }
+
+func TestGetAllBook(t *testing.T) {
+	book := createBook(t)
+	books, err := DBmanager.GetAllBook()
+	require.GreaterOrEqual(t, len(books), 1)
+	require.NoError(t, err)
+	deleteBook(t, book.Id)
+	require.NotEmpty(t, books)
+	require.NotEmpty(t, book)
+}
