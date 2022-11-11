@@ -2,6 +2,7 @@ package bookTesting
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -19,6 +20,18 @@ type Book struct {
 	Price      float64   `json:"price"`
 	Amount     int       `json:"amount"`
 	CreatedAt  time.Time `json:"created_at"`
+}
+
+type GetBooksRes struct {
+	Books []*Book `json:"books"`
+	Count int     `json:"count"`
+}
+
+type BookParam struct {
+	Limit  int
+	Page   int
+	Author string
+	Price  float64
 }
 
 func NewDbmanager(db *sqlx.DB) *DBManager {
@@ -87,7 +100,7 @@ func (d *DBManager) GetBook(book_id int64) (*Book, error) {
 	return &b, nil
 }
 
-func (d *DBManager) UpdateBook(book *Book) (*Book, error){
+func (d *DBManager) UpdateBook(book *Book) (*Book, error) {
 	query := `
 		UPDATE book_info SET
 			title = $1,
@@ -98,7 +111,7 @@ func (d *DBManager) UpdateBook(book *Book) (*Book, error){
 		RETURNING id, title, author_name, price, amount, created_at
 	`
 	row := d.db.QueryRow(
-		query, 
+		query,
 		book.Title,
 		book.AuthorName,
 		book.Price,
@@ -138,7 +151,18 @@ func (d *DBManager) DeleteBook(book_id int64) error {
 	return nil
 }
 
-func (d *DBManager) GetAllBook() ([]*Book, error) {
+func (d *DBManager) GetAllBook(params *BookParam) (*GetBooksRes, error) {
+	result := GetBooksRes{
+		Books: make([]*Book, 0),
+	}
+	offset := (params.Page - 1) * params.Limit
+	filter := " WHERE true "
+	if params.Author != "" {
+		filter += " AND author_name ilike '%s'" + "%" + params.Author + "%"
+	}
+	if params.Price > 0 {
+		filter += fmt.Sprintf(" AND price = %f", params.Price)
+	}
 	query := `
 		SELECT 
 			id,
@@ -148,13 +172,12 @@ func (d *DBManager) GetAllBook() ([]*Book, error) {
 			amount,
 			created_at
 		FROM book_info
-	`
-	rows, err := d.db.Query(query)
+	` + filter + ` LIMIT $1 OFFSET $2`
+	rows, err := d.db.Query(query, params.Limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var books []*Book
 	for rows.Next() {
 		var book Book
 		err := rows.Scan(
@@ -168,7 +191,12 @@ func (d *DBManager) GetAllBook() ([]*Book, error) {
 		if err != nil {
 			return nil, err
 		}
-		books = append(books, &book)
+		result.Books = append(result.Books, &book)
 	}
-	return books, nil
+	queryCount := `SELECT count(*) FROM book_info` + filter
+	err = d.db.QueryRow(queryCount).Scan(&result.Count)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

@@ -48,8 +48,11 @@ func TestUpdateBook(t *testing.T) {
 
 func TestGetAllBook(t *testing.T) {
 	book := createBook(t)
-	books, err := DBmanager.GetAllBook()
-	require.GreaterOrEqual(t, len(books), 1)
+	books, err := DBmanager.GetAllBook(&BookParam{
+		Limit: 10,
+		Page: 1,
+	})
+	require.GreaterOrEqual(t, len(books.Books), 1)
 	require.NoError(t, err)
 	deleteBook(t, book.Id)
 	require.NotEmpty(t, books)
