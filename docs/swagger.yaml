@@ -1,0 +1,199 @@
+definitions:
+  bookTesting.Book:
+    properties:
+      amount:
+        type: integer
+      author_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  bookTesting.GetBooksRes:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/bookTesting.Book'
+        type: array
+      count:
+        type: integer
+    type: object
+  main.CreateOrUpdateRequest:
+    properties:
+      amount:
+        type: integer
+      author_name:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  main.ResponOK:
+    properties:
+      message:
+        type: string
+    type: object
+  main.ResponseError:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a book service api.
+  title: Swagger for book api
+  version: "1.0"
+paths:
+  /book:
+    post:
+      consumes:
+      - application/json
+      description: Create book
+      parameters:
+      - description: Book
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bookTesting.Book'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ResponseError'
+      summary: Create book
+      tags:
+      - books
+  /book/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get book by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bookTesting.Book'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ResponseError'
+      summary: Get book by id
+      tags:
+      - books
+  /book/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes book info
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ResponOK'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ResponseError'
+      summary: deletes book
+      tags:
+      - books
+  /book/getbooks:
+    get:
+      consumes:
+      - application/json
+      description: Get All Books
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Author
+        in: query
+        name: author
+        type: string
+      - description: Price
+        in: query
+        name: price
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bookTesting.GetBooksRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ResponseError'
+      summary: GET ALL BOOKS
+      tags:
+      - books
+  /book/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update book by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Book
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bookTesting.Book'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ResponseError'
+      summary: Update book by id
+      tags:
+      - books
+swagger: "2.0"
