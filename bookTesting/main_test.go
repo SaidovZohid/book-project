@@ -1,26 +1,29 @@
 package bookTesting
 
 import (
+	"book/config"
 	"fmt"
 	"log"
 	"os"
 	"testing"
 
-	_ "github.com/lib/pq"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 var (
 	DBmanager *DBManager
-	host      = "localhost"
-	port      = 5432
-	user      = "postgres"
-	password  = "1234"
-	dbname    = "book"
 )
 
 func TestMain(m *testing.M) {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	cfg := config.Load("")
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
+	cfg.Postgres.Host,
+	cfg.Postgres.Port,
+	cfg.Postgres.User,
+	cfg.Postgres.Password,
+	cfg.Postgres.Database,
+	)
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
 		log.Fatalf("failed to connect postgres: %v", err)

@@ -1,9 +1,5 @@
-create database book;
-
-drop database book;
-
 create table book_info (
-    id serial not null,
+    id serial not null primary key,
     title varchar(150) not null,
     author_name varchar(100) not null,
     price numeric(18, 2) not null,
